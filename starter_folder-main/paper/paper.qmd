@@ -1,16 +1,18 @@
 ---
-title: "My title"
+title: "Trends in Mortality: Analyzing the Distribution of Death Licenses in Great Toronto Area in the Past Decade"
 subtitle: "My subtitle if needed"
 author: 
-  - First author
-  - Another author
-thanks: "Code and data are available at: LINK."
+  - Shanjie Jiao
+thanks: "Code and data are available at: https://github.com/Jie-jiao05/Paper-1.git"
 date: today
 date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: "Mortality in urban and non-urban settings is an important indicator of public health response. This paper analyzes death license data for Toronto and Outside City Limits from January 2011 to August 2024 to explore differences in urban and rural area. This study use different in weather cross month and public health event as factors to observe the death license change cross the events. This study suggests that urban area have a more sensitive response than rural areas."
+
 format: pdf
 number-sections: true
 bibliography: references.bib
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r}
@@ -20,202 +22,216 @@ bibliography: references.bib
 
 library(tidyverse)
 library(palmerpenguins)
+
+mydatapath = "~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"
+data <- read_csv(mydatapath)
 ```
+
 
 
 # Introduction
 
-You can and should cross-reference sections and sub-sections. We use @citeR and @rohan.
+The process of urbanization is advancing rapidly in recent decade, leading to increasingly pronounced differences between urban and rural areas in terms of population density, economic development, infrastructure, and public health services. The disparity in death number between urban and non-urban environments has bring significant attention from researchers, serving as a vital indicator of socioeconomic conditions and public health response. 
+This paper aims to analyze death license data from January 2011 to August 2024 in Toronto and Outside City Limits to explore the differences in responses the months with different climates on the number of deaths and public health events between urban and rural areas. While much of the existing research has focused on the gap in accessible health resource, income gap and community, few studies have investigated the changes in death number between urban and rural areas in response to various external factor. Climate change through month, extreme weather events, and major public health crises (COVID-19) have emerged as significant factors influencing mortality globally. 
+In this study, we analyze death license data from Toronto and Outside City Limits areas recorded by civic center in each region to observe the response. The findings of this study will provide valuable insights for urban planners and public health experts, allowing them to consider the differences between urban and rural settings when formulating policies aimed at enhancing the overall public health response.
+The paper is structured in that Section Two covers the data used to analysis the extreme climate in certain month, Cross-sectional comparison of the effect of increasing temperature on the number of deaths with each passing year. Section Three critically examines the data, compare the number of death license between urban and rural areas during COVID-19 period. Conclusions indicate that urban area are more sensible than rural area on mortality in responding to years with months and covid periods.
 
-The remainder of this paper is structured as follows. @sec-data....
+
+
+You can and should cross-reference sections and sub-sections. We use @talia, @opendatatorotno, and @rohan.
+
+The remainder of this paper is structured as follows. @sec-mydatasection
 
 
 
-# Data {#sec-data}
+# Data {#sec-mydatasection}
 
-Some of our data is of penguins (@fig-bills), from @palmerpenguins.
+## Data Source and Measurement {#sec-datasource}
+
+This report utilize the data collected by City Clerk’s Office published in Open Data Toronto is titled “Death Registry Statistic”( opendatatoronto 2024). This specific dataset used for the graphs and analyses in this paper, included information about the number of death linces , issued civic centres (Scarborough, North York, Toronto and Etobicoke), place of death, time period with unique id. All information is entered into the Registry Services Tracking System. The key limitation of this dataset is it only record the death that are be found but not include the death number in hospital or other institution and do not contain all the death number as the data is not fully complete and contain realistic death omission. In this dataset, no personal information is included, since the dataset is only used to count the number of death license in Toronto and Outside City Limit preserving the confidentiality of individual associated information.
+
+The dataset was analyzed using R (R Core Team 2022) and downloaded using the R package opendatatoronto (Gelfand 2022). Additionally, the packages tidyverse (Wickham et al. 2019), lubridate (Wickham 2023a), stringr (Wickham 2023b), sf (Pebesma 2018), and tmap (Tennekes 2018) have been used in data cleaning and visualization.
+
+## Data Characteristics {#sec-datachar}
+
+The raw dataset contained 948 unique observation and 5 variable columns, all data are recorded in constant or str and all are filled with valid information. In the first cleaning step, I separate the time period column into year and month and then create a new data column by combining the year, month into proper date format for easier to get data. A glimpse of the final cleaned dataset can be seen in
+Table 1.
+
 
 ```{r}
-#| label: fig-bills
+#| label: tbl-cleaneddata
+#| tbl-cap: "Sample of Cleaned Data of Death License in Toronto and Outside City Limits Area "
+#| echo: false
+#| message: false
+#| warning: false
+
+
+cleaned_data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
+
+# Show a sample of the cleaned data
+cleaned_data_sample <- cleaned_data %>% 
+  slice(1:10)  # Adjust the number to show more or fewer rows if needed
+
+# Display the sample
+cleaned_data_sample
+
+```
+## Data trend {#sec-datachar} 
+
+
+
+```{r}
+#| label: fig-typebar
+#| fig-cap: "Over View of Total Death License in Toronto and Outside City Limits area "
+#| fig-align: 'center'
+#| echo: false
+#| warning: false
+library(readr)
+
+data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
+
+
+# Create the histogram with years on the x-axis and death licenses on the y-axis
+ggplot(yearly_data, aes(x = year, y = total_death_licenses, fill = place_of_death)) +
+  geom_bar(stat = "identity", position = "dodge", alpha = 0.7) +  # Bar plot to show counts
+  theme_minimal() +
+  labs(
+    x = "Year", 
+    y = "Total Death Licenses", 
+    fill = "Place of Death",
+    caption = "Data source: Your Dataset."
+  ) +
+  scale_fill_brewer(palette = "Set1") +  # Set a color palette for places
+  theme(legend.position = "bottom")
+
+
+
+```
+
+
+```{r}
+#| label: fig-marriage
 #| fig-cap: Bills of penguins
 #| echo: false
 
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = "none") +
+data |> 
+  ggplot(aes(x = date, y = death_licenses, caption="Data source: opendatatoronto." )) +
+  geom_point()
+
+
+
+data |>
+  filter(place_of_death == "Toronto") |>
+  ggplot(aes(x = year)) +
+  geom_histogram() +
   theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
-```
+  labs(
+    x = "year",
+    y = "death licenses",
+    caption = "Data source: opendatatoronto."
+  )
 
-Talk more about it.
 
-And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
 
-```{r}
-#| label: fig-planes
-#| fig-cap: Relationship between wing length and width
-#| echo: false
-#| warning: false
-#| message: false
-
-analysis_data <- read_csv(here::here("data/analysis_data/analysis_data.csv"))
-
-analysis_data |> 
-  ggplot(aes(x = width, y = length)) +
-  geom_point(alpha = 0.8) +
+data |>
+  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>  # Filter both Toronto and Outside City Limits
+  ggplot(aes(x = year, y = death_licenses, color = place_of_death)) +  # Color by place_of_death
+  geom_line(bin=100) +
   theme_minimal() +
-  labs(x = "Wing width (mm)",
-       y = "Wing length (mm)")
-```
-
-Talk way more about it. 
-
-
-
-# Model
-
-The goal of our modelling strategy is twofold. Firstly,...
-
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
-
-## Model set-up
-
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
-
-\begin{align} 
-y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha + \beta_i + \gamma_i\\
-\alpha &\sim \mbox{Normal}(0, 2.5) \\
-\beta &\sim \mbox{Normal}(0, 2.5) \\
-\gamma &\sim \mbox{Normal}(0, 2.5) \\
-\sigma &\sim \mbox{Exponential}(1)
-\end{align}
-
-We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
-
-
-### Model justification
-
-We expect a positive relationship between the size of the wings and time spent aloft. In particular...
-
-We can use maths by including latex between dollar signs, for instance $\theta$.
-
-
-# Results
-
-Our results are summarized in @tbl-modelresults.
-
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-
-library(rstanarm)
-
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
-```
-
-```{r}
-#| echo: false
-#| eval: true
-#| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
-#| warning: false
-
-modelsummary::modelsummary(
-  list(
-    "First model" = first_model
-  ),
-  statistic = "mad",
-  fmt = 2
-)
-```
-
-
-
-
-# Discussion
-
-## First discussion point {#sec-first-point}
-
-If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
-
-## Second discussion point
-
-## Third discussion point
-
-## Weaknesses and next steps
-
-Weaknesses and next steps should also be included.
-
-\newpage
-
-\appendix
-
-# Appendix {-}
-
-
-# Additional data details
-
-# Model details {#sec-model-details}
-
-## Posterior predictive check
-
-In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
-
-In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
-
-```{r}
-#| eval: true
-#| echo: false
-#| message: false
-#| warning: false
-#| label: fig-ppcheckandposteriorvsprior
-#| layout-ncol: 2
-#| fig-cap: "Examining how the model fits, and is affected by, the data"
-#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
-
-pp_check(first_model) +
-  theme_classic() +
+  labs(
+    x = "Year", 
+    y = "Death Licenses", 
+    color = "Place of Death", 
+    caption = "Data source: opendatatoronto."
+  ) +
+  scale_color_brewer(palette = "Set1") +  # Set color palette
   theme(legend.position = "bottom")
 
-posterior_vs_prior(first_model) +
+data |>
+  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>
+  ggplot(mapping = aes(x = year, y = death_licenses, color = place_of_death)) +
+  geom_smooth(method = "loess", se = FALSE) +  # Smooth the line with LOESS
   theme_minimal() +
+  labs(
+    x = "Year", 
+    y = "Death Licenses", 
+    color = "Place of Death",
+    caption = "Data source: opendatatoronto."
+  ) +
   scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom") +
-  coord_flip()
+  theme(legend.position = "bottom")
+
+yearly_data <- data |>
+  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>
+  group_by(year, place_of_death) |>
+  summarise(total_death_licenses = sum(death_licenses, na.rm = TRUE), .groups = 'drop')
+
+# Create the histogram with years on the x-axis and death licenses on the y-axis
+ggplot(yearly_data, aes(x = year, y = total_death_licenses, fill = place_of_death)) +
+  geom_bar(stat = "identity", position = "dodge", alpha = 0.7) +  # Bar plot to show counts
+  theme_minimal() +
+  labs(
+    x = "Year", 
+    y = "Total Death Licenses", 
+    fill = "Place of Death",
+    caption = "Data source: Your Dataset."
+  ) +
+  scale_fill_brewer(palette = "Set1") +  # Set a color palette for places
+  theme(legend.position = "bottom")
+
+
+
+
+
+data |>
+  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>
+  ggplot(mapping = aes(x = year, y = death_licenses, color = place_of_death)) +
+  geom_smooth(method = "loess", se = FALSE) +  # Smooth the line with LOESS
+  theme_minimal() +
+  labs(
+    x = "Year", 
+    y = "Death Licenses", 
+    color = "Place of Death",
+    caption = "Data source: opendatatoronto."
+  ) +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "bottom")
+
+yearly_data <- data |>
+  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>
+  group_by(year, place_of_death) |>
+  summarise(total_death_licenses = sum(death_licenses, na.rm = TRUE), .groups = 'drop')
+
+
+
+
+
+
+yearly_data <- data |>
+  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>
+  group_by(year, place_of_death) |>
+  summarise(total_death_licenses = sum(death_licenses, na.rm = TRUE), .groups = 'drop')
+
+# 绘制图表
+ggplot(yearly_data, aes(x = year, y = total_death_licenses, color = place_of_death, group = place_of_death)) +
+  geom_line(size = 1) +  # 使用线图
+  geom_point(size = 2) +  # 在数据点上添加点
+  theme_minimal() +
+  labs(
+    x = "Year", 
+    y = "Total Death Licenses", 
+    color = "Place of Death",
+    title = "Annual Death License Changes in Toronto and Outside City Limits",
+    caption = "Data source: Your Dataset."
+  ) +
+  scale_color_brewer(palette = "Set1") +  # 设置颜色调色板
+  theme(legend.position = "bottom")
+
+
+
 ```
 
-## Diagnostics
-
-@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
-
-@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
-
-```{r}
-#| echo: false
-#| eval: true
-#| message: false
-#| warning: false
-#| label: fig-stanareyouokay
-#| fig-cap: "Checking the convergence of the MCMC algorithm"
-#| fig-subcap: ["Trace plot", "Rhat plot"]
-#| layout-ncol: 2
-
-plot(first_model, "trace")
-
-plot(first_model, "rhat")
-```
 
 
-
-\newpage
-
-
-# References
 
 
