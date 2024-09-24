@@ -77,7 +77,7 @@ cleaned_data_sample
 
 ```
 ## Data trend {#sec-datachar} 
-
+Generally speaking, 
 
 
 ```{r}
@@ -90,20 +90,28 @@ library(readr)
 
 data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
 
+# 首先，计算每个地区的年平均值
+yearly_data <- data |>
+  group_by(year, place_of_death) |>
+  summarise(total_death_licenses = sum(death_licenses, na.rm = TRUE), .groups = 'drop')
 
-# Create the histogram with years on the x-axis and death licenses on the y-axis
-ggplot(yearly_data, aes(x = year, y = total_death_licenses, fill = place_of_death)) +
-  geom_bar(stat = "identity", position = "dodge", alpha = 0.7) +  # Bar plot to show counts
+# 计算总体的死亡许可证均值
+overall_mean <- mean(yearly_data$total_death_licenses)
+
+# 创建柱状图并添加均值线
+ggplot(yearly_data, aes(x = as.factor(year), y = total_death_licenses, fill = place_of_death)) +
+  geom_bar(stat = "identity", position = "dodge", alpha = 0.7) +  # Bar plot with dodge to show side by side
+  geom_hline(yintercept = overall_mean, linetype = "dashed", color = "blue", size = 1) +  # 添加均值线
   theme_minimal() +
   labs(
     x = "Year", 
     y = "Total Death Licenses", 
     fill = "Place of Death",
-    caption = "Data source: Your Dataset."
+    title = "Death Licenses per Year in Toronto and Outside City Limits",
+    caption = "Data source: Your Dataset"
   ) +
-  scale_fill_brewer(palette = "Set1") +  # Set a color palette for places
+  scale_fill_brewer(palette = "Set1") +  # Set color palette for places
   theme(legend.position = "bottom")
-
 
 
 ```
@@ -227,6 +235,23 @@ ggplot(yearly_data, aes(x = year, y = total_death_licenses, color = place_of_dea
   scale_color_brewer(palette = "Set1") +  # 设置颜色调色板
   theme(legend.position = "bottom")
 
+
+overall_mean <- mean(data$death_licenses, na.rm = TRUE)
+
+# 绘制每年的死亡许可证变化，并区分 Toronto 和 Outside City Limits
+ggplot(data, aes(x = year, y = death_licenses, color = place_of_death)) +
+  geom_line(stat = "summary", fun = mean, size = 1) +  # 绘制趋势线（每年平均）
+  geom_hline(yintercept = overall_mean, linetype = "dashed", color = "blue") +  # 添加全局均值线
+  theme_minimal() +
+  labs(
+    x = "Year",
+    y = "Death Licenses",
+    color = "Place of Death",
+    title = "Death License Trends in Toronto and Outside City Limits",
+    caption = "Data source: Opendatatoronto"
+  ) +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "bottom")
 
 
 ```
