@@ -44,7 +44,7 @@ The remainder of this paper is structured as follows. @sec-mydatasection
 
 
 
-# Data {#sec-mydatasection}
+# Data {#sec-data}
 
 ## Data Source and Measurement {#sec-datasource}
 
@@ -59,30 +59,30 @@ Table 1.
 
 
 ```{r}
-#| label: tbl-cleaneddata
+#| label: tbl-00
 #| tbl-cap: "Sample of Cleaned Data of Death License in Toronto and Outside City Limits Area "
 #| echo: false
 #| message: false
 #| warning: false
-
+library(tidyverse)
+library(here)
+library(knitr)
 
 cleaned_data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
 
-# Show a sample of the cleaned data
-cleaned_data_sample <- cleaned_data %>% 
-  slice(1:10)  # Adjust the number to show more or fewer rows if needed
+# Display the first 10 rows of the data as a table
+cleaned_data %>% 
+  head(10) %>% 
+  kable()
 
-# Display the sample
-cleaned_data_sample
 
 ```
-## Data trend {#sec-datachar} 
-Generally speaking, 
-
+## Data trend {#sec-datatrend} 
+The histogram shows a consistent difference in the number of death license in Toronto and Outside City Limit area from 2011 to August 2024. The general difference between the two areas is generally unchanged, but the number of death licenses in Toronto fell in year 2022 and returned to the average in year 2023. Since this data set provided by OpendataToronto is updated monthly, the data from September to December 2024 cannot be obtained until the completion of this paper, so there will be some bias in this specific period. The following section will try to predict this part of data by building a prediction model.
 
 ```{r}
-#| label: fig-typebar
-#| fig-cap: "Over View of Total Death License in Toronto and Outside City Limits area "
+#| label: fig-01
+#| fig-cap: "Distribution of the Size of City-Owned Renewable Energy Installations in Toronto in kilowatts (kW)"
 #| fig-align: 'center'
 #| echo: false
 #| warning: false
@@ -90,173 +90,224 @@ library(readr)
 
 data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
 
-# 首先，计算每个地区的年平均值
-yearly_data <- data |>
+data |>
+  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>
   group_by(year, place_of_death) |>
-  summarise(total_death_licenses = sum(death_licenses, na.rm = TRUE), .groups = 'drop')
-
-# 计算总体的死亡许可证均值
-overall_mean <- mean(yearly_data$total_death_licenses)
-
-# 创建柱状图并添加均值线
-ggplot(yearly_data, aes(x = as.factor(year), y = total_death_licenses, fill = place_of_death)) +
-  geom_bar(stat = "identity", position = "dodge", alpha = 0.7) +  # Bar plot with dodge to show side by side
-  geom_hline(yintercept = overall_mean, linetype = "dashed", color = "blue", size = 1) +  # 添加均值线
+  summarise(death_licenses = sum(death_licenses), .groups = "drop") |>
+  ggplot(mapping = aes(x = year, y = death_licenses, fill = place_of_death)) +
+  geom_bar(stat = "identity", position = "dodge", alpha = 0.5) +
   theme_minimal() +
   labs(
-    x = "Year", 
-    y = "Total Death Licenses", 
+    x = "Year", y = "Number of Death Licenses",
     fill = "Place of Death",
-    title = "Death Licenses per Year in Toronto and Outside City Limits",
-    caption = "Data source: Your Dataset"
+    caption = "Data source: Opendatatoronto."
   ) +
-  scale_fill_brewer(palette = "Set1") +  # Set color palette for places
-  theme(legend.position = "bottom")
+  scale_fill_brewer(palette = "Set1")
 
 
 ```
+## Data trend {#sec-datainmonth} 
+In order to make the data more complete and to be able to better measure the trends in terms of years, this paper tries to use time series analysis of the data through the September to December data from 2011-2023 for forecasting and generating, by capturing the trends to generate future values to make predictions. The final output showed in fig-4 prediction model. In general, we can simulate a overall data after adding this number into the bar chart in fig-5. For the sake of the rigor of the data, the analysis of this paper will not include this part of the generated data
+
+```{r}
+#| label: fig-02 prediction model
+#| tbl-cap: "Sample of Cleaned Data of Death License in Toronto and Outside City Limits Area "
+#| echo: false
+#| message: false
+#| warning: false
+# Load required libraries
+library(tidyverse)
+library(here)
+library(forecast)
+
+# Read the data
+data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
+
+# Data manipulation to summarize total death licenses by month
+summary_monthly_data <- data |>
+  group_by(year, month) |>
+  summarise(death_licenses = sum(death_licenses, na.rm = TRUE), .groups = "drop")
+
+# Convert to time series object
+ts_data <- ts(summary_monthly_data$death_licenses, start = c(min(summary_monthly_data$year), 1), frequency = 12)
+
+# Forecasting for September to November 2024
+forecast_horizon <- 3  # We want to forecast for 3 months
+fit <- ets(ts_data)  # Exponential smoothing state space model
+forecast_results <- forecast(fit, h = forecast_horizon)
+
+# Prepare data for bar chart
+predicted_months <- c("Sep 2024", "Oct 2024", "Nov 2024")
+predicted_values <- as.numeric(forecast_results$mean)
+
+# Create a data frame for plotting
+prediction_data <- data.frame(
+  month = predicted_months,
+  death_licenses = predicted_values
+)
+
+# Create the bar chart for the forecasted death licenses
+ggplot(prediction_data, aes(x = month, y = death_licenses)) +
+  geom_bar(stat = "identity", fill = "steelblue", alpha = 0.7) +
+  theme_minimal() +
+  labs(
+    x = "Month",
+    y = "Predicted Number of Death Licenses",
+    title = "Predicted Death Licenses for September to November 2024",
+    caption = "Data source: Analysis Data."
+    
+  )
+total_predicted_death_licenses <- sum(predicted_values)
+total_predicted_death_licenses
+# Print the total predicted death licenses
+
+```
+Based on the available data, there is a slow upward trend for outside city limits, and fluctuate trend for the Toronto area could be observed. But based on our prediction showed on fig-4, it is predictable the total death license in 2024 will above the mean line and will push the true mean line slightly above what this paper have simulated.
+```{r}
+#| label: fig-03
+#| fig-cap: "Distribution of the Size of City-Owned Renewable Energy Installations in Toronto in kilowatts (kW)"
+#| fig-align: 'center'
+#| echo: false
+#| warning: false
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+
+# Ensure your date column is in Date format
+data$date <- as.Date(data$date)
+
+# Filter for relevant places and extract year
+yearly_death_licenses <- data |>
+  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>  # Filter for Toronto and Outside City Limits
+  mutate(year = year(date)) |>                                       # Create a new column for the year
+  group_by(year, place_of_death) |>                                 # Group by year and place of death
+  summarise(total_death_licenses = sum(death_licenses, na.rm = TRUE), .groups = "drop")  # Sum up death licenses
+
+# Calculate the mean for each place of death
+mean_death_licenses <- yearly_death_licenses |>
+  group_by(place_of_death) |>                                      # Group by place of death
+  summarise(mean_death_licenses = mean(total_death_licenses, na.rm = TRUE), .groups = "drop")
+
+# Create the line plot
+ggplot(yearly_death_licenses, aes(x = year, y = total_death_licenses, color = place_of_death)) +
+  geom_line(size = 1.2) +                                           # Line for each place of death
+  geom_point(size = 3) +                                           # Points on the line for better visibility
+  geom_hline(data = mean_death_licenses, aes(yintercept = mean_death_licenses, color = place_of_death), 
+             linetype = "dashed", size = 1) +                    # Mean line
+  theme_minimal() +
+  labs(
+    title = "Total Death Licenses by Year (Toronto vs. Outside City Limits)",
+    x = "Year",
+    y = "Total Number of Death Licenses",
+    caption = "Data source: Your Data Source.",
+    color = "Place of Death"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better visibility
+
+
+
+```
+# Results {#sec-results}
+## Potentional relation with Weather
+In recent years, with the sever climate change, there has been a higher death event that can be related to teh extreme weather. As noted by fig-6, Toronto doesn't seem to have received much of an impact. This bar chart shows the total number of death licenses by month from 2011 to 2024 (do not include 2024, 9-12), and the only peak observed is in January, while all other months are within the mean line except for March and May. Considering that Toronto's summer climate is more favorable compared to other countries in different regions, leading to a lower impact of extreme weather on deaths,but it is possible that extreme cold weather may have led to more deaths in January. By examining the national library of medicine in CMAJ Open. 2016 Jan-Mar; 4(1): E48 An article entitled “Assessment of the effect of cold and hot temperatures on mortality in Ontario, Canada: a population-based study” was published in CMAJ Open. 2016 Jan-Mar; 4(1): E48. A population-based study An article entitled “Assessment of the effect of cold and hot temperatures on mortality in Ontario, Canada: a population-based study” cited “Across Ontario, each 5°C change in daily temperature was estimated to induce 7 excess deaths per day in cold seasons and 4 excess deaths in warm seasons. and 4 excess deaths in warm seasons.” Concluded with the data this paper simulated, this suggests that there may be a positive correlation between cold weather and death license.
+
+```{r}
+#| label: fig-04
+#| fig-cap: "Distribution of the Size of City-Owned Renewable Energy Installations in Toronto in kilowatts (kW)"
+#| fig-align: 'center'
+#| echo: false
+#| warning: false
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+
+# Ensure your date column is in Date format
+data$date <- as.Date(data$date)
+
+# Extract month from the date and aggregate death licenses by month (regardless of year)
+monthly_death_licenses <- data |>
+  mutate(month = month(date, label = TRUE, abbr = TRUE)) |>  # Create a new column for the month
+  group_by(month) |>                                       # Group by month
+  summarise(total_death_licenses = sum(death_licenses, na.rm = TRUE), .groups = "drop") # Sum up death licenses
+
+# Calculate the mean total death licenses
+mean_death_licenses <- mean(monthly_death_licenses$total_death_licenses)
+
+# Create the bar chart with mean line
+ggplot(monthly_death_licenses, aes(x = month, y = total_death_licenses)) +
+  geom_bar(stat = "identity", fill = "skyblue") +  # Bar for each month
+  geom_hline(yintercept = mean_death_licenses, color = "red", linetype = "dashed", size = 1) +  # Mean line
+  theme_minimal() +
+  labs(
+    title = "Total Death Licenses by Month (2011-2024)",
+    x = "Month",
+    y = "Total Number of Death Licenses",
+    caption = "Data source: Your Data Source."
+  ) +
+  scale_x_discrete(limits = month.abb) +  # Ensure months are in order
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better visibility
+
+```
+
+
+## Covid and Death License
+Fig-05 shows the dataset presented below the dot plot, in order to more visually observe the change in the number of death licenses during covid-19, this article narrows the dataset down to the period between 2017-2024 and in presents each month's data separately. From fig-05, there was not much change during the epidemic (2019-2022), the whole graph only shows extreme values in 3 months, , one of which occurred in 08-2020 but then fell back do not show a consistent trend, so in this paper it will be more proper to be treated as an outlier and is not statistically significant, and the overall distribution is more fitted with uniform distribution. In conclusipn the data proves that global wide public health is not correlated with the number of death license in Toronto and its outside city limits.
 
 
 ```{r}
-#| label: fig-marriage
+#| label: fig-05
 #| fig-cap: Bills of penguins
 #| echo: false
 
-data |> 
-  ggplot(aes(x = date, y = death_licenses, caption="Data source: opendatatoronto." )) +
-  geom_point()
+# Read the CSV file
+data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
+# Load necessary libraries
+library(tidyverse)
+library(lubridate)
 
+# Read the CSV file
+data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
 
+# Process the data
+plot_data <- data %>%
+  # Filter only the relevant locations
+  filter(place_of_death %in% c("Toronto", "Outside City Limits")) %>%
+  # Group by year, month, and place of death, and sum the death licenses
+  group_by(year, month, place_of_death) %>%
+  summarise(death_licenses = sum(death_licenses, na.rm = TRUE), .groups = 'drop') %>%
+  # Create a new date column for easier plotting
+  mutate(date = make_date(year, month, 1)) %>%
+  # Filter to restrict time from 2015 to 2024
+  filter(year >= 2017 & year <= 2024)
 
-data |>
-  filter(place_of_death == "Toronto") |>
-  ggplot(aes(x = year)) +
-  geom_histogram() +
-  theme_minimal() +
+# Create a dot plot with clearer x-axis
+ggplot(plot_data, aes(x = date, y = death_licenses, color = place_of_death)) +
+  geom_point(size = 3) + # Use points for the dot plot
+  scale_x_date(date_labels = "%b %Y", date_breaks = "3 months") + # Show every 3 months
   labs(
-    x = "year",
-    y = "death licenses",
-    caption = "Data source: opendatatoronto."
-  )
-
-
-
-data |>
-  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>  # Filter both Toronto and Outside City Limits
-  ggplot(aes(x = year, y = death_licenses, color = place_of_death)) +  # Color by place_of_death
-  geom_line(bin=100) +
-  theme_minimal() +
-  labs(
-    x = "Year", 
-    y = "Death Licenses", 
-    color = "Place of Death", 
-    caption = "Data source: opendatatoronto."
+    title = "Monthly Death Licenses in Toronto and Outside City Limits (2015-2024)",
+    x = "Year-Month",
+    y = "Number of Death Licenses",
+    color = "Place of Death"
   ) +
-  scale_color_brewer(palette = "Set1") +  # Set color palette
-  theme(legend.position = "bottom")
-
-data |>
-  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>
-  ggplot(mapping = aes(x = year, y = death_licenses, color = place_of_death)) +
-  geom_smooth(method = "loess", se = FALSE) +  # Smooth the line with LOESS
-  theme_minimal() +
-  labs(
-    x = "Year", 
-    y = "Death Licenses", 
-    color = "Place of Death",
-    caption = "Data source: opendatatoronto."
-  ) +
-  scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom")
-
-yearly_data <- data |>
-  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>
-  group_by(year, place_of_death) |>
-  summarise(total_death_licenses = sum(death_licenses, na.rm = TRUE), .groups = 'drop')
-
-# Create the histogram with years on the x-axis and death licenses on the y-axis
-ggplot(yearly_data, aes(x = year, y = total_death_licenses, fill = place_of_death)) +
-  geom_bar(stat = "identity", position = "dodge", alpha = 0.7) +  # Bar plot to show counts
-  theme_minimal() +
-  labs(
-    x = "Year", 
-    y = "Total Death Licenses", 
-    fill = "Place of Death",
-    caption = "Data source: Your Dataset."
-  ) +
-  scale_fill_brewer(palette = "Set1") +  # Set a color palette for places
-  theme(legend.position = "bottom")
-
-
-
-
-
-data |>
-  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>
-  ggplot(mapping = aes(x = year, y = death_licenses, color = place_of_death)) +
-  geom_smooth(method = "loess", se = FALSE) +  # Smooth the line with LOESS
-  theme_minimal() +
-  labs(
-    x = "Year", 
-    y = "Death Licenses", 
-    color = "Place of Death",
-    caption = "Data source: opendatatoronto."
-  ) +
-  scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom")
-
-yearly_data <- data |>
-  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>
-  group_by(year, place_of_death) |>
-  summarise(total_death_licenses = sum(death_licenses, na.rm = TRUE), .groups = 'drop')
-
-
-
-
-
-
-yearly_data <- data |>
-  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>
-  group_by(year, place_of_death) |>
-  summarise(total_death_licenses = sum(death_licenses, na.rm = TRUE), .groups = 'drop')
-
-# 绘制图表
-ggplot(yearly_data, aes(x = year, y = total_death_licenses, color = place_of_death, group = place_of_death)) +
-  geom_line(size = 1) +  # 使用线图
-  geom_point(size = 2) +  # 在数据点上添加点
-  theme_minimal() +
-  labs(
-    x = "Year", 
-    y = "Total Death Licenses", 
-    color = "Place of Death",
-    title = "Annual Death License Changes in Toronto and Outside City Limits",
-    caption = "Data source: Your Dataset."
-  ) +
-  scale_color_brewer(palette = "Set1") +  # 设置颜色调色板
-  theme(legend.position = "bottom")
-
-
-overall_mean <- mean(data$death_licenses, na.rm = TRUE)
-
-# 绘制每年的死亡许可证变化，并区分 Toronto 和 Outside City Limits
-ggplot(data, aes(x = year, y = death_licenses, color = place_of_death)) +
-  geom_line(stat = "summary", fun = mean, size = 1) +  # 绘制趋势线（每年平均）
-  geom_hline(yintercept = overall_mean, linetype = "dashed", color = "blue") +  # 添加全局均值线
-  theme_minimal() +
-  labs(
-    x = "Year",
-    y = "Death Licenses",
-    color = "Place of Death",
-    title = "Death License Trends in Toronto and Outside City Limits",
-    caption = "Data source: Opendatatoronto"
-  ) +
-  scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom")
+  theme_minimal() + # Clean theme
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate x-axis text for readability
 
 
 ```
+# Discussion {#sec-results}
+
+This paper analyzes the number of death licenses registered by civic centers from 2011 to September 2024. By visualizing death licenses by year and month, and using time series for forecasting, it is concluded that there is a positive correlation between the increase in extreme weather events in Toronto and the number of death licenses. Despite the negative impact of Covid-19 on Canada's economy, society, and healthcare, but the distrbution of death license in each year could not reveal a noticiable outcome as it more likly follow uniform disributionm   the dataset study was unable to conclude that there was any positive or negative correlation.
+
+Since this dataset only includes numbers, civic centers, and localities, it is not possible to determine the cause of death, and since death licenses are not mandatory for death and the concept is not equivalent to the total number of deaths in the Toronto area, this data does not provide an analysis of the total number of deaths and the causes of deaths in Toronto area, but it is useful for the government to know how many deaths have occurred in the Toronto area and do apply for death license for furthur applicatipn. However, for government departments, the death license statistics are useful for the registration and improvement of government health policies. As of the completion of this article, the data for the period September-December 2024 is not yet available, and is therefore missing, but the main data for the analysis avoids this specific time period, and is fully described and projected in the article, so it does not bias the analysis too much.
 
 
+# References {#sec-results}
 
+Chen, Hong, et al. “Assessment of the Effect of Cold and Hot Temperatures on Mortality in Ontario, Canada: A Population-Based Study.” CMAJ Open, U.S. National Library of Medicine, 2 Feb. 2016, www.ncbi.nlm.nih.gov/pmc/articles/PMC4866918/. 
 
+City Clerk’s Office. “Open Data Dataset.” City of Toronto Open Data Portal, open.toronto.ca/dataset/death-registry-statistics/. Accessed 25 Sept. 2024. 
 
+Alexander, Rohan. “Telling Stories with Data.” Telling Stories with Data, 27 July 2023, tellingstorieswithdata.com/. 
+
+Service Ontario. “Get or Replace an Ontario Death Certificate.” Ontario.Ca, 24 Jan. 2012, www.ontario.ca/page/get-or-replace-an-ontario-death-certificate#:~:text=A%20death%20certificate%20is%20a,Image. 
