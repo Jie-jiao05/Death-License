@@ -1,12 +1,11 @@
 ---
-title: "Trends in Mortality: Analyzing the Distribution of Death Licenses in Great Toronto Area in the Past Decade"
-subtitle: "My subtitle if needed"
+title: "Trends in Death License: Analyzing the Distribution of Death Licenses in Great Toronto Area in the Past Decade and Potentional Realation to the Extreme Weather and Covid-19"
 author: 
   - Shanjie Jiao
 thanks: "Code and data are available at: https://github.com/Jie-jiao05/Paper-1.git"
 date: today
 date-format: long
-abstract: "Mortality in urban and non-urban settings is an important indicator of public health response. This paper analyzes death license data for Toronto and Outside City Limits from January 2011 to August 2024 to explore differences in urban and rural area. This study use different in weather cross month and public health event as factors to observe the death license change cross the events. This study suggests that urban area have a more sensitive response than rural areas."
+abstract: "Urbanization amplified the inequality between urban area and rural area, in various aspects, including population density, economic growth, infrastructure, and public health services. During 2019-2023 the global-wide public health panic Covid-19 and the rising number in extreme weather, all it cause the rising mortality not just in Toronto, also global wide. As death number and death license are two relatively separate concept. It is obvious that the Covid-19 and severe climate have positive correlation with number of death record, while number of death license only show a positive relation with severe weather in January specifically and uncorrelated with Covid-19, by analyzing Toronto and Outside City Limits data.."
 
 format: pdf
 number-sections: true
@@ -31,10 +30,13 @@ data <- read_csv(mydatapath)
 
 # Introduction
 
-The process of urbanization is advancing rapidly in recent decade, leading to increasingly pronounced differences between urban and rural areas in terms of population density, economic development, infrastructure, and public health services. The disparity in death number between urban and non-urban environments has bring significant attention from researchers, serving as a vital indicator of socioeconomic conditions and public health response. 
-This paper aims to analyze death license data from January 2011 to August 2024 in Toronto and Outside City Limits to explore the differences in responses the months with different climates on the number of deaths and public health events between urban and rural areas. While much of the existing research has focused on the gap in accessible health resource, income gap and community, few studies have investigated the changes in death number between urban and rural areas in response to various external factor. Climate change through month, extreme weather events, and major public health crises (COVID-19) have emerged as significant factors influencing mortality globally. 
+The process of urbanization is advancing rapidly in recent decade, leading to increasingly pronounced differences between urban and rural areas in terms of population density, economic development, infrastructure, and public health services. The disparity in death license number between Toronto and Outside City Limit has bring significant attention from researchers, serving as a vital indicator for socioeconomic conditions and public health as a response. But it is noticeable there is a fundamental difference between death record and death license, A death certificate is a document containing the details of a death that been documented in certain civic center, which is not necessarily capture the total mortality data or the causes of death, as a death record would, also it is not mandotory.
+This paper aims to analyze death license data from January 2011 to August 2024 collected by civic center with range from Toronto and Outside City Limits to explore the differences in 
+Whether there is a positive correlation between the number of deaths caused by weather extremes in particular months and the number of death licenses during the covid.
+While much of the existing research has focused on the gap in accessible health resource, income gap and community, few studies have investigated the changes in death license between urban and rural areas in response to various external factor. Extreme weather in certain month, and major public health crises (COVID-19) have emerged as significant factors influencing mortality globally. 
 In this study, we analyze death license data from Toronto and Outside City Limits areas recorded by civic center in each region to observe the response. The findings of this study will provide valuable insights for urban planners and public health experts, allowing them to consider the differences between urban and rural settings when formulating policies aimed at enhancing the overall public health response.
-The paper is structured in that Section Two covers the data used to analysis the extreme climate in certain month, Cross-sectional comparison of the effect of increasing temperature on the number of deaths with each passing year. Section Three critically examines the data, compare the number of death license between urban and rural areas during COVID-19 period. Conclusions indicate that urban area are more sensible than rural area on mortality in responding to years with months and covid periods.
+The paper is structured in that Section Two covers the general data trend since 2011 to 2024 with measurement, since the data of 2024 is not completed, this paper use previous record to perform a prediction from September to December of 2024. Section Three critically examines the data, compare the number of death license between Toronto and Outside City Limits in each month focus on the period that the frequency of extreme weather is high, and the comparison of the year before and during Covid to exam potential relation. Conclusions indicate extreme weather in winter do have positive correlation with number of death license, but Covid-19 seems do not have relation to it .
+
 
 
 
@@ -50,11 +52,12 @@ The remainder of this paper is structured as follows. @sec-mydatasection
 
 This report utilize the data collected by City Clerk’s Office published in Open Data Toronto is titled “Death Registry Statistic”( opendatatoronto 2024). This specific dataset used for the graphs and analyses in this paper, included information about the number of death linces , issued civic centres (Scarborough, North York, Toronto and Etobicoke), place of death, time period with unique id. All information is entered into the Registry Services Tracking System. The key limitation of this dataset is it only record the death that are be found but not include the death number in hospital or other institution and do not contain all the death number as the data is not fully complete and contain realistic death omission. In this dataset, no personal information is included, since the dataset is only used to count the number of death license in Toronto and Outside City Limit preserving the confidentiality of individual associated information.
 
-The dataset was analyzed using R (R Core Team 2022) and downloaded using the R package opendatatoronto (Gelfand 2022). Additionally, the packages tidyverse (Wickham et al. 2019), lubridate (Wickham 2023a), stringr (Wickham 2023b), sf (Pebesma 2018), and tmap (Tennekes 2018) have been used in data cleaning and visualization.
+The dataset was analyzed using R (R Core Team 2022) and downloaded using the R package opendatatoronto (Gelfand 2022). Additionally, the packages tidyverse (Wickham et al. 2019), lubridate (Wickham 2023a), stringr (Wickham 2023b), readr( Hadley Wickham 2024), and forecast(Rob Hyndman 2024) ggplot2(Hadley Wickham 2025) ,dplyr(Hadley Wickham 2023)have been used in data cleaning and visualization.
+
 
 ## Data Characteristics {#sec-datachar}
 
-The raw dataset contained 948 unique observation and 5 variable columns, all data are recorded in constant or str and all are filled with valid information. In the first cleaning step, I separate the time period column into year and month and then create a new data column by combining the year, month into proper date format for easier to get data. A glimpse of the final cleaned dataset can be seen in
+The raw dataset contained 948 unique observation and 5 variable columns, all data are recorded in constant or str and all are filled with valid information. In the first cleaning step, I separate the time period column into year and month and then create a new data column by combining the year, month into proper date format for easier to get data. A glimpse of the final cleaned dataset can be seen in tbl-00
 Table 1.
 
 
@@ -78,11 +81,11 @@ cleaned_data %>%
 
 ```
 ## Data trend {#sec-datatrend} 
-The histogram shows a consistent difference in the number of death license in Toronto and Outside City Limit area from 2011 to August 2024. The general difference between the two areas is generally unchanged, but the number of death licenses in Toronto fell in year 2022 and returned to the average in year 2023. Since this data set provided by OpendataToronto is updated monthly, the data from September to December 2024 cannot be obtained until the completion of this paper, so there will be some bias in this specific period. The following section will try to predict this part of data by building a prediction model.
+The histogram fig-01 shows a consistent difference in the number of death license in Toronto and Outside City Limit area from 2011 to August 2024. The general difference between the two areas is generally unchanged, but the number of death licenses in Toronto fell in year 2022 and returned to the average in year 2023. Since this data set provided by OpendataToronto is updated monthly, the data from September to December 2024 cannot be obtained until the completion of this paper, so there will be some bias in this specific period. The following section will try to predict this part of data by building a prediction model.
 
 ```{r}
 #| label: fig-01
-#| fig-cap: "Distribution of the Size of City-Owned Renewable Energy Installations in Toronto in kilowatts (kW)"
+#| fig-cap: "Histogram of Death Lincese From 2011 to 2024"
 #| fig-align: 'center'
 #| echo: false
 #| warning: false
@@ -107,7 +110,7 @@ data |>
 
 ```
 ## Data trend {#sec-datainmonth} 
-In order to make the data more complete and to be able to better measure the trends in terms of years, this paper tries to use time series analysis of the data through the September to December data from 2011-2023 for forecasting and generating, by capturing the trends to generate future values to make predictions. The final output showed in fig-4 prediction model. In general, we can simulate a overall data after adding this number into the bar chart in fig-5. For the sake of the rigor of the data, the analysis of this paper will not include this part of the generated data
+In order to make the data more complete and to be able to better measure the trends in terms of years, this paper tries to use time series analysis of the data through the September to December data from 2011-2023 for forecasting and generating, by capturing the trends to generate future values to make predictions. The final output showed in fig-2 prediction model. In general, we can simulate a overall data after adding this number into the bar chart in fig-3. For the correctness of the rigor of the data, the analysis of this paper will not include this part of the generated data.
 
 ```{r}
 #| label: fig-02 prediction model
@@ -154,7 +157,7 @@ ggplot(prediction_data, aes(x = month, y = death_licenses)) +
     x = "Month",
     y = "Predicted Number of Death Licenses",
     title = "Predicted Death Licenses for September to November 2024",
-    caption = "Data source: Analysis Data."
+    caption = "Data source: Opendatatoronto.."
     
   )
 total_predicted_death_licenses <- sum(predicted_values)
@@ -165,7 +168,7 @@ total_predicted_death_licenses
 Based on the available data, there is a slow upward trend for outside city limits, and fluctuate trend for the Toronto area could be observed. But based on our prediction showed on fig-4, it is predictable the total death license in 2024 will above the mean line and will push the true mean line slightly above what this paper have simulated.
 ```{r}
 #| label: fig-03
-#| fig-cap: "Distribution of the Size of City-Owned Renewable Energy Installations in Toronto in kilowatts (kW)"
+#| fig-cap: "Line Plot of Total Death License by Year"
 #| fig-align: 'center'
 #| echo: false
 #| warning: false
@@ -196,7 +199,7 @@ ggplot(yearly_death_licenses, aes(x = year, y = total_death_licenses, color = pl
              linetype = "dashed", size = 1) +                    # Mean line
   theme_minimal() +
   labs(
-    title = "Total Death Licenses by Year (Toronto vs. Outside City Limits)",
+    title = "Line Plot of Total Death License by Year",
     x = "Year",
     y = "Total Number of Death Licenses",
     caption = "Data source: Your Data Source.",
@@ -208,12 +211,11 @@ ggplot(yearly_death_licenses, aes(x = year, y = total_death_licenses, color = pl
 
 ```
 # Results {#sec-results}
-## Potentional relation with Weather
-In recent years, with the sever climate change, there has been a higher death event that can be related to teh extreme weather. As noted by fig-6, Toronto doesn't seem to have received much of an impact. This bar chart shows the total number of death licenses by month from 2011 to 2024 (do not include 2024, 9-12), and the only peak observed is in January, while all other months are within the mean line except for March and May. Considering that Toronto's summer climate is more favorable compared to other countries in different regions, leading to a lower impact of extreme weather on deaths,but it is possible that extreme cold weather may have led to more deaths in January. By examining the national library of medicine in CMAJ Open. 2016 Jan-Mar; 4(1): E48 An article entitled “Assessment of the effect of cold and hot temperatures on mortality in Ontario, Canada: a population-based study” was published in CMAJ Open. 2016 Jan-Mar; 4(1): E48. A population-based study An article entitled “Assessment of the effect of cold and hot temperatures on mortality in Ontario, Canada: a population-based study” cited “Across Ontario, each 5°C change in daily temperature was estimated to induce 7 excess deaths per day in cold seasons and 4 excess deaths in warm seasons. and 4 excess deaths in warm seasons.” Concluded with the data this paper simulated, this suggests that there may be a positive correlation between cold weather and death license.
-
+## Protential  relation with Weather
+In recent years, with the sever climate change, there has been a higher death event that can be related to teh extreme weather. As noted by fig-6, Toronto doesn't seem to have received much of an impact. This bar chart shows the total number of death licenses by month from 2011 to 2024 (do not include 2024, 9-12), and the only peak observed is in January, while all other months are within the mean line except for March and May. The data provided by Toronto Public Health indicitate in during 2011-22 total extreme weather is 262 and 115 happened in January. Considering that Toronto's summer climate is more favorable compared to other countries in different regions, leading to a lower impact of extreme hot weather on deaths, but it is possible that severe cold weather may have led to more deaths and resulted in higher death license been issued  in January. By examining the national library of medicine in CMAJ Open. 2016 Jan-Mar; 4(1): E48 An article entitled “Assessment of the effect of cold and hot temperatures on mortality in Ontario, Canada: a population-based study” was published in CMAJ Open. 2016 Jan-Mar; 4(1): E48. A population-based study An article entitled “Assessment of the effect of cold and hot temperatures on mortality in Ontario, Canada: a population-based study” cited “Across Ontario, each 5°C change in daily temperature was estimated to induce 7 excess deaths per day in cold seasons and 4 excess deaths in warm seasons. and 4 excess deaths in warm seasons.” Concluded with the data this paper simulated, this suggests that there may be a positive correlation between cold weather and death license.
 ```{r}
 #| label: fig-04
-#| fig-cap: "Distribution of the Size of City-Owned Renewable Energy Installations in Toronto in kilowatts (kW)"
+#| fig-cap: "Total Death License by Month"
 #| fig-align: 'center'
 #| echo: false
 #| warning: false
@@ -256,7 +258,7 @@ Fig-05 shows the dataset presented below the dot plot, in order to more visually
 
 ```{r}
 #| label: fig-05
-#| fig-cap: Bills of penguins
+#| fig-cap: "Monthly Death License Dot Plot"
 #| echo: false
 
 # Read the CSV file
@@ -308,6 +310,9 @@ Chen, Hong, et al. “Assessment of the Effect of Cold and Hot Temperatures on M
 
 City Clerk’s Office. “Open Data Dataset.” City of Toronto Open Data Portal, open.toronto.ca/dataset/death-registry-statistics/. Accessed 25 Sept. 2024. 
 
+City of Toronto. (2022, December 21). Statistics on extreme cold weather alerts in Toronto. https://www.toronto.ca/city-government/data-research-maps/research-reports/housing-and-homelessness-research-and-reports/statistics-on-extreme-cold-weather-alerts-in-toronto/ 
+
 Alexander, Rohan. “Telling Stories with Data.” Telling Stories with Data, 27 July 2023, tellingstorieswithdata.com/. 
 
-Service Ontario. “Get or Replace an Ontario Death Certificate.” Ontario.Ca, 24 Jan. 2012, www.ontario.ca/page/get-or-replace-an-ontario-death-certificate#:~:text=A%20death%20certificate%20is%20a,Image. 
+Service Ontario. “Get or Replace an Ontario Death Certificate.” Ontario.Ca, 24 Jan. 2012, 
+https://www.ontario.ca/page/get-or-replace-an-ontario-death-certificate#:~:text=A%20death%20certificate%20is%20a,Image.
