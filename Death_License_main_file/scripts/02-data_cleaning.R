@@ -11,7 +11,7 @@
 library(tidyverse)
 
 #### Clean data ####
-raw_data <- read_csv("~/Paper 1/starter_folder-main/data/raw_data/raw_data.csv")
+raw_data <- read_csv("~/Desktop/Death-License-Project/Death_License_main_file/data/raw_data/raw_data.csv")
 
 cleaned_data <-
   raw_data |>
@@ -26,4 +26,4 @@ cleaned_data <-
 
 
 #### Save data ####
-write_csv(cleaned_data, "starter_folder-main/data/analysis_data/analysis_data.csv")
+write_csv(cleaned_data, "~/Desktop/Death-License-Project/Death_License_main_file/data/analysis_data/analysis_data.csv")

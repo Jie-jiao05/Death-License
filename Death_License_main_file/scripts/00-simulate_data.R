@@ -40,4 +40,4 @@ data <- tibble(
 )
 
 #### Write_csv
-write_csv(data, file = "~/Paper 1/starter_folder-main/data/raw_data/simulated.csv")
+write_csv(data, file = "~/Desktop/Death-License-Project/Death_License_main_file/data/raw_data/simulated.csv")

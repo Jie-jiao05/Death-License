@@ -29,4 +29,4 @@ loaded_data <- filter(datastore_resources, row_number() == 1) %>%
 
 
 #### Save data ####
-write_csv(loaded_data, "~/Paper 1/starter_folder-main/data/raw_data/raw_data.csv")
+write_csv(loaded_data, "~/Desktop/Death-License-Project/Death_License_main_file/data/raw_data/raw_data.csv")

@@ -19,6 +19,3 @@ The repo is structured as:
 
 Statement on LLM usage:  LLMs were used in the making of this paper.
 
-## cause my project will crash down when i change the name of the starter folder, So i have to keep it, sry.
-Change the rproj file name so that it's not starter_folder.Rproj
-Change the README title so that it's not Starter folder

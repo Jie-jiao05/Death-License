@@ -31,7 +31,7 @@ library(forecast)
 library(lubridate)
 
 
-mydatapath <- "~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"
+mydatapath <- "~/Desktop/Death-License-Project/Death_License_main_file/data/analysis_data/analysis_data.csv"
 data <- read_csv(mydatapath)
 ```
 
@@ -74,7 +74,7 @@ The raw dataset contained 948 unique observations and 5 variable columns. All da
 #| warning: false
 
 
-cleaned_data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
+cleaned_data <- read_csv(here::here("~/Desktop/Death-License-Project/Death_License_main_file/data/analysis_data/analysis_data.csv"))
 
 # Display the first 10 rows of the data as a table
 cleaned_data %>%
@@ -90,7 +90,7 @@ cleaned_data %>%
 #| warning: false
 library(readr)
 
-data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
+data <- read_csv(here::here("~/Desktop/Death-License-Project/Death_License_main_file/data/analysis_data/analysis_data.csv"))
 
 data |>
   filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>
@@ -119,7 +119,7 @@ Table @fig-01 illustrates a consistent difference in the number of death license
 #| warning: false
 
 # Read the CSV file
-data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
+data <- read_csv(here::here("~/Desktop/Death-License-Project/Death_License_main_file/data/analysis_data/analysis_data.csv"))
 
 # Process the data to get total death licenses per place of death
 pie_data <- data %>%
@@ -174,7 +174,7 @@ To enhance the completeness of the data and improve year-over-year trend measure
 #| warning: false
 #|
 # Read the data
-data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
+data <- read_csv(here::here("~/Desktop/Death-License-Project/Death_License_main_file/data/analysis_data/analysis_data.csv"))
 
 # Data manipulation to summarize total death licenses by month
 summary_monthly_data <- data |>
@@ -315,7 +315,7 @@ ggplot(monthly_death_licenses, aes(x = month, y = total_death_licenses)) +
 #| warning: false
 
 # Read the CSV file
-data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
+data <- read_csv(here::here("~/Desktop/Death-License-Project/Death_License_main_file/data/analysis_data/analysis_data.csv"))
 
 # Process the data
 plot_data <- data %>%
