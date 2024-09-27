@@ -5,7 +5,7 @@ author:
 thanks: "Code and data are available at: https://github.com/Jie-jiao05/Paper-1.git"
 date: today
 date-format: long
-abstract: "Urbanization amplified the inequality between urban area and rural area, in various aspects, including population density, economic growth, infrastructure, and public health services. During 2019-2023 the global-wide public health panic Covid-19 and the rising number in extreme weather, all it cause the rising mortality not just in Toronto, also global wide. As death number and death license are two relatively separate concept. It is obvious that the Covid-19 and severe climate have positive correlation with number of death record, while number of death license only show a positive relation with severe weather in January specifically and uncorrelated with Covid-19, by analyzing Toronto and Outside City Limits data.."
+abstract: "Urbanization amplified the inequality between urban area and rural area, in various aspects, including population density, economic growth, infrastructure, and public health services. During 2019-2023 the global-wide public health panic Covid-19 and the rising number in extreme weather, all it cause the rising mortality not just in Toronto, also global wide. As death number and death license are two relatively separate concept. It is obvious that the Covid-19 and severe climate have positive correlation with number of death record, while number of death license only show a positive relation with severe weather in January specifically and uncorrelated with Covid-19, by analyzing Toronto and Outside City Limits data."
 
 format: pdf
 number-sections: true
