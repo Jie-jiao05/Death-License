@@ -1,7 +1,7 @@
 #### Preamble ####
-# Purpose: Paper 1 find topic
+# Purpose: simulation
 # Author: Shanjie Jiao
-# Date: 22 September 2024 
+# Date: 22 September 2024
 # Contact: shanjie.jiao@mail.utoronto.ca
 # License: MIT
 # Pre-requisites: None
@@ -13,30 +13,31 @@ library(tidyverse)
 library(opendatatoronto)
 library("anytime")
 
-# Define the start and end date
-start_date <- as.Date("2014-08-01")
-end_date <- as.Date("2024-08-01")
-
 # Set the number of random dates you want to generate
 number_of_dates <- 100
 
-# Generate random dates and death numbers
-data <-
-  tibble(
-    dates = as.Date(
-      runif(
-        n = number_of_dates,
-        min = as.numeric(start_date),
-        max = as.numeric(end_date)
-      ),
-      origin = "2000-01-01"
-    ),
-    number_of_marriage = rpois(n = number_of_dates, lambda = 15)
-  )
-data
+# Define the range for random dates
+start_date <- as.Date("2014-05-01")
+end_date <- as.Date("2024-09-30")
 
+# Define the valid civic centers and places of death
+valid_civic_centres <- c("NY", "ET", "SC", "TO")
+valid_places_of_death <- c("Outside City Limits", "Toronto")
+
+# Generate the random dates, death numbers, civic centers, and places of death
+data <- tibble(
+  dates = as.Date(
+    runif(
+      n = number_of_dates,
+      min = as.numeric(start_date),
+      max = as.numeric(end_date)
+    ),
+    origin = "1970-01-01"
+  ),
+  number_of_death = rpois(n = number_of_dates, lambda = 15),
+  CIVIC_CENTRE = sample(valid_civic_centres, number_of_dates, replace = TRUE),
+  PLACE_OF_DEATH = sample(valid_places_of_death, number_of_dates, replace = TRUE)
+)
 
 #### Write_csv
-write_csv(data, file = "starter_folder-main/data/raw_data/simulated.csv")
-
-
+write_csv(data, file = "~/Paper 1/starter_folder-main/data/raw_data/simulated.csv")
