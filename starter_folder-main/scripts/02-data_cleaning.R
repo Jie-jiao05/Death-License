@@ -1,7 +1,7 @@
 #### Preamble ####
-# Purpose: Cleans the raw plane data recorded by two observers..... [...UPDATE THIS...]
+# Purpose: Cleans the raw data
 # Author: Shanjie Jiao
-# Date: 22 September 2024 
+# Date: 22 September 2024
 # Contact: shanjie.jiao@mail.utoronto.ca
 # License: MIT
 # Pre-requisites: None
@@ -11,16 +11,18 @@
 library(tidyverse)
 
 #### Clean data ####
-raw_data <- read_csv("starter_folder-main/data/raw_data/raw_data.csv")
+raw_data <- read_csv("~/Paper 1/starter_folder-main/data/raw_data/raw_data.csv")
 
 cleaned_data <-
   raw_data |>
-  janitor::clean_names() |> 
-  separate(col = time_period,
-           into = c("year", "month"),
-           sep = "-") |> 
-  mutate(date = lubridate::ymd(paste(year, month, "01", sep = "-"))
-  )
+  janitor::clean_names() |>
+  separate(
+    col = time_period,
+    into = c("year", "month"),
+    sep = "-"
+  ) |>
+  mutate(date = lubridate::ymd(paste(year, month, "01", sep = "-")))
+
 
 
 #### Save data ####

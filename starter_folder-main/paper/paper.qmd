@@ -31,7 +31,7 @@ library(forecast)
 library(lubridate)
 
 
-mydatapath = "~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"
+mydatapath <- "~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"
 data <- read_csv(mydatapath)
 ```
 
@@ -58,7 +58,7 @@ This report utilizes data collected by the City Clerk’s Office, published in O
 
 ## Data Tools
 
-The dataset was analyzed using R [@citeR] and downloaded using the R package opendatatoronto [@opendatatoronto]. Additionally, the packages tidyverse [@citetidyverse], lubridate [@citelubridate], readr [@citereadr], forecast [@citeforecast], ggplot [@citeggplot], dplyr [@citedplyr], here[@citehere], forecast [@citeforecast] have been used in data cleaning and visualization.
+The dataset was analyzed using R [@citeR] and downloaded using the R package opendatatoronto [@opendatatoronto]. Additionally, the packages tidyverse [@citetidyverse], lubridate [@citelubridate], readr [@citereadr], forecast [@citeforecast], ggplot [@citeggplot], dplyr [@citedplyr], here[@citehere], forecast [@citeforecast], styler[@citestyler] have been used in data cleaning and visualization.
 
 
 ## Data Characteristics 
@@ -77,10 +77,9 @@ The raw dataset contained 948 unique observations and 5 variable columns. All da
 cleaned_data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
 
 # Display the first 10 rows of the data as a table
-cleaned_data %>% 
-  head(10) %>% 
+cleaned_data %>%
+  head(10) %>%
   kable()
-
 ```
 ## Data Record 
 ```{r}
@@ -106,7 +105,6 @@ data |>
     caption = "Data source: Opendatatoronto."
   ) +
   scale_fill_brewer(palette = "Set1")
-
 ```
 
 Table @fig-01 illustrates a consistent difference in the number of death licenses issued in Toronto compared to the Outside City Limit area from 2011 to August 2024. While the general disparity between the two regions remains relatively unchanged, it is noteworthy that the number of death licenses in Toronto declined in 2022 but returned to the average levels in 2023. Since the dataset provided by OpenData Toronto, City Clerk's Office [@toronto2024data] is updated monthly, data for September to December 2024 cannot be obtained until the completion of this paper, which may introduce some bias for this specific period. In  @sec-pre, this paper will attempt to predict this segment of data by building a predictive model using the historical data collected in this dataset.
@@ -131,13 +129,15 @@ pie_data <- data %>%
   group_by(place_of_death) %>%
   summarise(death_licenses = sum(death_licenses, na.rm = TRUE)) %>%
   # Calculate percentage of death licenses
-  mutate(percentage = death_licenses / sum(death_licenses) * 100,
-         # Create label with specific percentage format
-         label = paste0(round(percentage, 1), "%"))
+  mutate(
+    percentage = death_licenses / sum(death_licenses) * 100,
+    # Create label with specific percentage format
+    label = paste0(round(percentage, 1), "%")
+  )
 
 # Create a pie chart with percentage labels
 ggplot(pie_data, aes(x = "", y = percentage, fill = place_of_death)) +
-  geom_bar(stat = "identity", width = 1) + 
+  geom_bar(stat = "identity", width = 1) +
   coord_polar("y") + # Convert bar chart to pie chart
   geom_text(aes(label = label), position = position_stack(vjust = 0.5)) + # Add percentage labels
   labs(
@@ -146,15 +146,13 @@ ggplot(pie_data, aes(x = "", y = percentage, fill = place_of_death)) +
     caption = "Data source: Opendatatoronto."
   ) +
   theme_void() + # Remove axis and grid lines for pie chart
-  theme(legend.position = "right") # Position legend on the right
+  theme(legend.position = "right") # Position on the right
 
 death_licenses_summary <- data %>%
-  filter(place_of_death %in% c("Toronto", "Outside City Limits")) %>%  # Filter for Toronto and Outside City Limits
+  filter(place_of_death %in% c("Toronto", "Outside City Limits")) %>% # Filter for Toronto and Outside City Limits
   group_by(place_of_death, civic_centre) %>%
   summarise(total_death_licenses = sum(death_licenses, na.rm = TRUE)) %>%
-  mutate(percentage = total_death_licenses / sum(total_death_licenses) * 100)  # Calculate percentage
-
-
+  mutate(percentage = total_death_licenses / sum(total_death_licenses) * 100) # Calculate percentage
 ```
 In @fig-02, it is evident that Toronto accounts for 78.9% of the death licenses issued during this time period, while Outside City Limits comprises the remaining 21.1%. This significant disparity in population density is a consequence of urbanization, which results in diminished resource inflow to Outside City Limits.
 
@@ -169,12 +167,12 @@ In @fig-02, it is evident that Toronto accounts for 78.9% of the death licenses 
 To enhance the completeness of the data and improve year-over-year trend measurement, this paper utilizes time series analysis on the data from September to December for the years 2011 to 2023.  This approach captures trends to forecast and generate future values. The results of this predictive model are illustrated in @fig-03.  Additionally, we can simulate overall data by incorporating these predictions into the bar chart displayed in @fig-04, to maintain the rigor of the analysis, the generated prediction data will not be included in this study.
 
 ```{r}
-#| label: fig-03 
+#| label: fig-03
 #| tbl-cap: "Prediction of Death License in 2024 9-12 "
 #| echo: false
 #| message: false
-#| warning: false 
-#| 
+#| warning: false
+#|
 # Read the data
 data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
 
@@ -187,8 +185,8 @@ summary_monthly_data <- data |>
 ts_data <- ts(summary_monthly_data$death_licenses, start = c(min(summary_monthly_data$year), 1), frequency = 12)
 
 # Forecasting for September to November 2024
-forecast_horizon <- 3  # We want to forecast for 3 months
-fit <- ets(ts_data)  # Exponential smoothing state space model
+forecast_horizon <- 3 # We want to forecast for 3 months
+fit <- ets(ts_data) # Exponential smoothing state space model
 forecast_results <- forecast(fit, h = forecast_horizon)
 
 # Prepare data for bar chart
@@ -210,11 +208,9 @@ ggplot(prediction_data, aes(x = month, y = death_licenses)) +
     y = "Predicted Number of Death Licenses",
     title = "Predicted Death Licenses for September to November 2024",
     caption = "Data source: Opendatatoronto."
-    
   )
 total_predicted_death_licenses <- sum(predicted_values)
 # Print the total predicted death licenses
-
 ```
 
 
@@ -238,22 +234,24 @@ data$date <- as.Date(data$date)
 
 # Filter for relevant places and extract year
 yearly_death_licenses <- data |>
-  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |>  # Filter for Toronto and Outside City Limits
-  mutate(year = year(date)) |>                                       # Create a new column for the year
-  group_by(year, place_of_death) |>                                 # Group by year and place of death
-  summarise(total_death_licenses = sum(death_licenses, na.rm = TRUE), .groups = "drop")  # Sum up death licenses
+  filter(place_of_death %in% c("Toronto", "Outside City Limits")) |> # Filter for Toronto and Outside City Limits
+  mutate(year = year(date)) |> # Create a new column for the year
+  group_by(year, place_of_death) |> # Group by year and place of death
+  summarise(total_death_licenses = sum(death_licenses, na.rm = TRUE), .groups = "drop") # Sum up death licenses
 
 # Calculate the mean for each place of death
 mean_death_licenses <- yearly_death_licenses |>
-  group_by(place_of_death) |>                                      # Group by place of death
+  group_by(place_of_death) |> # Group by place of death
   summarise(mean_death_licenses = mean(total_death_licenses, na.rm = TRUE), .groups = "drop")
 
 # Create the line plot
 ggplot(yearly_death_licenses, aes(x = year, y = total_death_licenses, color = place_of_death)) +
-  geom_line(size = 1.2) +                                           # Line for each place of death
-  geom_point(size = 3) +                                           # Points on the line for better visibility
-  geom_hline(data = mean_death_licenses, aes(yintercept = mean_death_licenses, color = place_of_death), 
-             linetype = "dashed", size = 1) +                    # Mean line
+  geom_line(size = 1.2) + # Line for each place of death
+  geom_point(size = 3) + # Points on the line for better visibility
+  geom_hline(
+    data = mean_death_licenses, aes(yintercept = mean_death_licenses, color = place_of_death),
+    linetype = "dashed", size = 1
+  ) + # Mean line
   theme_minimal() +
   labs(
     title = "Line Plot of Total Death License by Year",
@@ -262,10 +260,7 @@ ggplot(yearly_death_licenses, aes(x = year, y = total_death_licenses, color = pl
     caption = "Data source: Opendatatoronto.",
     color = "Place of Death"
   ) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better visibility
-
-
-
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate x-axis labels for better visibility
 ```
 # Results {#sec-results}
 ## Death License with Month
@@ -286,8 +281,8 @@ data$date <- as.Date(data$date)
 
 # Extract month from the date and aggregate death licenses by month (regardless of year)
 monthly_death_licenses <- data |>
-  mutate(month = month(date, label = TRUE, abbr = TRUE)) |>  # Create a new column for the month
-  group_by(month) |>                                       # Group by month
+  mutate(month = month(date, label = TRUE, abbr = TRUE)) |> # Create a new column for the month
+  group_by(month) |> # Group by month
   summarise(total_death_licenses = sum(death_licenses, na.rm = TRUE), .groups = "drop") # Sum up death licenses
 
 # Calculate the mean total death licenses
@@ -295,8 +290,8 @@ mean_death_licenses <- mean(monthly_death_licenses$total_death_licenses)
 
 # Create the bar chart with mean line
 ggplot(monthly_death_licenses, aes(x = month, y = total_death_licenses)) +
-  geom_bar(stat = "identity", fill = "skyblue") +  # Bar for each month
-  geom_hline(yintercept = mean_death_licenses, color = "red", linetype = "dashed", size = 1) +  # Mean line
+  geom_bar(stat = "identity", fill = "skyblue") + # Bar for each month
+  geom_hline(yintercept = mean_death_licenses, color = "red", linetype = "dashed", size = 1) + # Mean line
   theme_minimal() +
   labs(
     title = "Total Death Licenses by Month (2011-2024)",
@@ -304,9 +299,8 @@ ggplot(monthly_death_licenses, aes(x = month, y = total_death_licenses)) +
     y = "Total Number of Death Licenses",
     caption = "Data source: Opendatatoronto."
   ) +
-  scale_x_discrete(limits = month.abb) +  # Ensure months are in order
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better visibility
-
+  scale_x_discrete(limits = month.abb) + # Ensure months are in order
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate x-axis labels for better visibility
 ```
 
 
@@ -329,7 +323,7 @@ plot_data <- data %>%
   filter(place_of_death %in% c("Toronto", "Outside City Limits")) %>%
   # Group by year, month, and place of death, and sum the death licenses
   group_by(year, month, place_of_death) %>%
-  summarise(death_licenses = sum(death_licenses, na.rm = TRUE), .groups = 'drop') %>%
+  summarise(death_licenses = sum(death_licenses, na.rm = TRUE), .groups = "drop") %>%
   # Create a new date column for easier plotting
   mutate(date = make_date(year, month, 1)) %>%
   # Filter to restrict time from 2015 to 2024
@@ -348,8 +342,6 @@ ggplot(plot_data, aes(x = date, y = death_licenses, color = place_of_death)) +
   ) +
   theme_minimal() + # Clean theme
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate x-axis text for readability
-
-
 ```
 # Discussion {#sec-discussion}
 
@@ -359,6 +351,6 @@ The dataset consists only of numerical counts, civic centers, and localities, ma
 
 # LLMs
 
-Statement on LLM usage:LLMs were used in the making of this paper.
+Statement on LLM usage: LLMs were used in the making of this paper.
 
 # References 
