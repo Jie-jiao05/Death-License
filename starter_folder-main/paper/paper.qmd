@@ -1,13 +1,16 @@
 ---
-title: "Trends in Death License: Analyzing the Distribution of Death Licenses in Great Toronto Area in the Past Decade and Potentional Realation to the Extreme Weather and Covid-19"
+title: "Trends in Death License: Analyzing the Distribution of Death Licenses in Great Toronto Area"
+subtitle: "Potentional Relation to Extreme Weather and Covid19"
 author: 
   - Shanjie Jiao
 thanks: "Code and data are available at: https://github.com/Jie-jiao05/Paper-1.git"
 date: today
 date-format: long
-abstract: "Urbanization amplified the inequality between urban area and rural area, in various aspects, including population density, economic growth, infrastructure, and public health services. During 2019-2023 the global-wide public health panic Covid-19 and the rising number in extreme weather, all it cause the rising mortality not just in Toronto, also global wide. As death number and death license are two relatively separate concept. It is obvious that the Covid-19 and severe climate have positive correlation with number of death record, while number of death license only show a positive relation with severe weather in January specifically and uncorrelated with Covid-19, by analyzing Toronto and Outside City Limits data."
+
+abstract: "During the global pandemic, heightened sensitivity to mortality became evident, while urbanization is boosting disparities between urban and rural areas in terms of population density, economic growth, infrastructure, and public health services. While the number of deaths and death licenses are all conceptual data of death, but with two distinct concepts, COVID-19 showed a positive correlation with the number of recorded deaths. However, death licenses followed a different pattern, the peak of death license happens in January, whcih is recorded as the month with most sever weather, it may contribute to a higher death license number. And the data does not suggest it has a clear impact of COVID-19 on the issuance of death licenses. A proper understanding of the death license dataset will enable experts to conduct a more comprehensive analysis of the reasons for death and to improve health policy."
 
 format: pdf
+toc: true
 number-sections: true
 bibliography: references.bib
 editor_options: 
@@ -21,6 +24,12 @@ editor_options:
 
 library(tidyverse)
 library(palmerpenguins)
+library(readr)
+library(here)
+library(knitr)
+library(forecast)
+library(lubridate)
+
 
 mydatapath = "~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"
 data <- read_csv(mydatapath)
@@ -30,35 +39,31 @@ data <- read_csv(mydatapath)
 
 # Introduction
 
-The process of urbanization is advancing rapidly in recent decade, leading to increasingly pronounced differences between urban and rural areas in terms of population density, economic development, infrastructure, and public health services. The disparity in death license number between Toronto and Outside City Limit has bring significant attention from researchers, serving as a vital indicator for socioeconomic conditions and public health as a response. But it is noticeable there is a fundamental difference between death record and death license, A death certificate is a document containing the details of a death that been documented in certain civic center, which is not necessarily capture the total mortality data or the causes of death, as a death record would, also it is not mandotory.
-This paper aims to analyze death license data from January 2011 to August 2024 collected by civic center with range from Toronto and Outside City Limits to explore the differences in 
-Whether there is a positive correlation between the number of deaths caused by weather extremes in particular months and the number of death licenses during the covid.
-While much of the existing research has focused on the gap in accessible health resource, income gap and community, few studies have investigated the changes in death license between urban and rural areas in response to various external factor. Extreme weather in certain month, and major public health crises (COVID-19) have emerged as significant factors influencing mortality globally. 
-In this study, we analyze death license data from Toronto and Outside City Limits areas recorded by civic center in each region to observe the response. The findings of this study will provide valuable insights for urban planners and public health experts, allowing them to consider the differences between urban and rural settings when formulating policies aimed at enhancing the overall public health response.
-The paper is structured in that Section Two covers the general data trend since 2011 to 2024 with measurement, since the data of 2024 is not completed, this paper use previous record to perform a prediction from September to December of 2024. Section Three critically examines the data, compare the number of death license between Toronto and Outside City Limits in each month focus on the period that the frequency of extreme weather is high, and the comparison of the year before and during Covid to exam potential relation. Conclusions indicate extreme weather in winter do have positive correlation with number of death license, but Covid-19 seems do not have relation to it .
 
+While much of the existing research has focused on disparities in healthcare access, income, and community resources, few studies have examined the changes in death license issuance between urban and rural areas in response to various external factors during or after the COVID-19 pandemic. This study aims to fill that gap by analyzing death license data from Toronto and regions Outside City Limits, as recorded by civic centers, to observe how these areas have responded to different external factors.
 
+Death licenses, as vital documents that provide detailed death information, offer a richer source of data than mere mortality numbers, allowing for a more nuanced approach to health-policy-making.
+The findings of this study may offer valuable insights for urban planners and public health experts, helping them understand the differences between urban and rural environments when extract data for further study that could used to investigate public health.
 
+The paper is structured as follows: In @sec-data it will presents the general data trends from 2011 to 2024, including measurement techniques. Since the data for 2024 is incomplete, previous records are used to predict death license trends from September to December 2024. In @sec-results it critically examines the data, comparing the number of death licenses issued in Toronto and Outside City Limits on a monthly basis, with a focus on periods of high extreme weather frequency. The comparison also covers the years before and during the COVID-19 pandemic to investigate whether the increase in mortality caused by COVID-19 led to a higher issuance of death licenses.The results indicate that the peak in death licenses, particularly in January, may be linked to extreme weather events causing increased mortality. However, COVID-19 does not appear to have caused a significant change in the number of death licenses issued. In @sec-discussion The limitation of this research will be further elaborates .
 
-You can and should cross-reference sections and sub-sections. We use @talia, @opendatatorotno, and @rohan.
-
-The remainder of this paper is structured as follows. @sec-mydatasection
 
 
 
 # Data {#sec-data}
 
-## Data Source and Measurement {#sec-datasource}
+## Data Source and Measurement 
 
-This report utilize the data collected by City Clerk’s Office published in Open Data Toronto is titled “Death Registry Statistic”( opendatatoronto 2024). This specific dataset used for the graphs and analyses in this paper, included information about the number of death linces , issued civic centres (Scarborough, North York, Toronto and Etobicoke), place of death, time period with unique id. All information is entered into the Registry Services Tracking System. The key limitation of this dataset is it only record the death that are be found but not include the death number in hospital or other institution and do not contain all the death number as the data is not fully complete and contain realistic death omission. In this dataset, no personal information is included, since the dataset is only used to count the number of death license in Toronto and Outside City Limit preserving the confidentiality of individual associated information.
+This report utilizes data collected by the City Clerk’s Office, published in Open Data Toronto, titled "Death Registry Statistics" [@opendatatoronto]. This specific dataset, used for the graphs and analyses in this paper, includes information about the number of death licenses issued, the civic centers (Scarborough, North York, Toronto, and Etobicoke) where they were issued, places of death, and time periods, along with unique identifiers for each record. Additionally, the dataset may not capture the complete number of deaths due to generate death license is totaly optional so not all death record will generate a death license. As this dataset only count the number of death license, so it do not include other personal information or detail in death. Importantly, no personal information is included in this dataset, as it is solely used to count the number of death licenses in Toronto and outside city limits, preserving the confidentiality of individuals’ associated information [@opendatatoronto].
 
-The dataset was analyzed using R (R Core Team 2022) and downloaded using the R package opendatatoronto (Gelfand 2022). Additionally, the packages tidyverse (Wickham et al. 2019), lubridate (Wickham 2023a), stringr (Wickham 2023b), readr( Hadley Wickham 2024), and forecast(Rob Hyndman 2024) ggplot2(Hadley Wickham 2025) ,dplyr(Hadley Wickham 2023)have been used in data cleaning and visualization.
+## Data Tools
+
+The dataset was analyzed using R [@citeR] and downloaded using the R package opendatatoronto [@opendatatoronto]. Additionally, the packages tidyverse [@citetidyverse], lubridate [@citelubridate], readr [@citereadr], forecast [@citeforecast], ggplot [@citeggplot], dplyr [@citedplyr], here[@citehere], forecast [@citeforecast] have been used in data cleaning and visualization.
 
 
-## Data Characteristics {#sec-datachar}
+## Data Characteristics 
 
-The raw dataset contained 948 unique observation and 5 variable columns, all data are recorded in constant or str and all are filled with valid information. In the first cleaning step, I separate the time period column into year and month and then create a new data column by combining the year, month into proper date format for easier to get data. A glimpse of the final cleaned dataset can be seen in tbl-00
-Table 1.
+The raw dataset contained 948 unique observations and 5 variable columns. All data are recorded as either constants or strings, and each entry is filled with valid information. In the first cleaning step, this paper separated the "period" column into "year" and "month." Subsequently, I created a new "date" column by combining the year and month into a proper date format to facilitate easier data retrieval. A glimpse of the final cleaned dataset can be seen in @tbl-00.
 
 
 ```{r}
@@ -67,9 +72,7 @@ Table 1.
 #| echo: false
 #| message: false
 #| warning: false
-library(tidyverse)
-library(here)
-library(knitr)
+
 
 cleaned_data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
 
@@ -78,11 +81,8 @@ cleaned_data %>%
   head(10) %>% 
   kable()
 
-
 ```
-## Data trend {#sec-datatrend} 
-The histogram fig-01 shows a consistent difference in the number of death license in Toronto and Outside City Limit area from 2011 to August 2024. The general difference between the two areas is generally unchanged, but the number of death licenses in Toronto fell in year 2022 and returned to the average in year 2023. Since this data set provided by OpendataToronto is updated monthly, the data from September to December 2024 cannot be obtained until the completion of this paper, so there will be some bias in this specific period. The following section will try to predict this part of data by building a prediction model.
-
+## Data Record 
 ```{r}
 #| label: fig-01
 #| fig-cap: "Histogram of Death Lincese From 2011 to 2024"
@@ -107,22 +107,74 @@ data |>
   ) +
   scale_fill_brewer(palette = "Set1")
 
-
 ```
-## Data trend {#sec-datainmonth} 
-In order to make the data more complete and to be able to better measure the trends in terms of years, this paper tries to use time series analysis of the data through the September to December data from 2011-2023 for forecasting and generating, by capturing the trends to generate future values to make predictions. The final output showed in fig-2 prediction model. In general, we can simulate a overall data after adding this number into the bar chart in fig-3. For the correctness of the rigor of the data, the analysis of this paper will not include this part of the generated data.
+
+Table @fig-01 illustrates a consistent difference in the number of death licenses issued in Toronto compared to the Outside City Limit area from 2011 to August 2024. While the general disparity between the two regions remains relatively unchanged, it is noteworthy that the number of death licenses in Toronto declined in 2022 but returned to the average levels in 2023. Since the dataset provided by OpenData Toronto, City Clerk's Office [@toronto2024data] is updated monthly, data for September to December 2024 cannot be obtained until the completion of this paper, which may introduce some bias for this specific period. In  @sec-pre, this paper will attempt to predict this segment of data by building a predictive model using the historical data collected in this dataset.
+
+
 
 ```{r}
-#| label: fig-02 prediction model
-#| tbl-cap: "Sample of Cleaned Data of Death License in Toronto and Outside City Limits Area "
+#| label: fig-02
+#| tbl-cap: "Percentage of Death Licenses in Toronto and Outside City Limits in 2011-2024 "
 #| echo: false
 #| message: false
 #| warning: false
-# Load required libraries
-library(tidyverse)
-library(here)
-library(forecast)
 
+# Read the CSV file
+data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
+
+# Process the data to get total death licenses per place of death
+pie_data <- data %>%
+  # Filter only the relevant locations
+  filter(place_of_death %in% c("Toronto", "Outside City Limits")) %>%
+  # Group by place of death and sum the death licenses
+  group_by(place_of_death) %>%
+  summarise(death_licenses = sum(death_licenses, na.rm = TRUE)) %>%
+  # Calculate percentage of death licenses
+  mutate(percentage = death_licenses / sum(death_licenses) * 100,
+         # Create label with specific percentage format
+         label = paste0(round(percentage, 1), "%"))
+
+# Create a pie chart with percentage labels
+ggplot(pie_data, aes(x = "", y = percentage, fill = place_of_death)) +
+  geom_bar(stat = "identity", width = 1) + 
+  coord_polar("y") + # Convert bar chart to pie chart
+  geom_text(aes(label = label), position = position_stack(vjust = 0.5)) + # Add percentage labels
+  labs(
+    title = "Percentage of Death Licenses in Toronto and Outside City Limits in 2011-2024",
+    fill = "Place of Death",
+    caption = "Data source: Opendatatoronto."
+  ) +
+  theme_void() + # Remove axis and grid lines for pie chart
+  theme(legend.position = "right") # Position legend on the right
+
+death_licenses_summary <- data %>%
+  filter(place_of_death %in% c("Toronto", "Outside City Limits")) %>%  # Filter for Toronto and Outside City Limits
+  group_by(place_of_death, civic_centre) %>%
+  summarise(total_death_licenses = sum(death_licenses, na.rm = TRUE)) %>%
+  mutate(percentage = total_death_licenses / sum(total_death_licenses) * 100)  # Calculate percentage
+
+
+```
+In @fig-02, it is evident that Toronto accounts for 78.9% of the death licenses issued during this time period, while Outside City Limits comprises the remaining 21.1%. This significant disparity in population density is a consequence of urbanization, which results in diminished resource inflow to Outside City Limits.
+
+
+
+
+
+
+
+
+## Data Prediction {#sec-pre}
+To enhance the completeness of the data and improve year-over-year trend measurement, this paper utilizes time series analysis on the data from September to December for the years 2011 to 2023.  This approach captures trends to forecast and generate future values. The results of this predictive model are illustrated in @fig-03.  Additionally, we can simulate overall data by incorporating these predictions into the bar chart displayed in @fig-04, to maintain the rigor of the analysis, the generated prediction data will not be included in this study.
+
+```{r}
+#| label: fig-03 
+#| tbl-cap: "Prediction of Death License in 2024 9-12 "
+#| echo: false
+#| message: false
+#| warning: false 
+#| 
 # Read the data
 data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
 
@@ -157,20 +209,25 @@ ggplot(prediction_data, aes(x = month, y = death_licenses)) +
     x = "Month",
     y = "Predicted Number of Death Licenses",
     title = "Predicted Death Licenses for September to November 2024",
-    caption = "Data source: Opendatatoronto.."
+    caption = "Data source: Opendatatoronto."
     
   )
 total_predicted_death_licenses <- sum(predicted_values)
-total_predicted_death_licenses
 # Print the total predicted death licenses
 
 ```
-Based on the available data, there is a slow upward trend for outside city limits, and fluctuate trend for the Toronto area could be observed. But based on our prediction showed on fig-4, it is predictable the total death license in 2024 will above the mean line and will push the true mean line slightly above what this paper have simulated.
+
+
+Based on the available data, a slow upward trend can be observed for Outside City Limits, while the Toronto area exhibits a more fluctuating trend. However, as indicated by predictions model shown in @fig-03, it is anticipated that the total number of death licenses in 2024 will exceed the mean line, resulting in a slight upward adjustment of the true mean line compared to the simulation presented in this paper.
+
+
+
 ```{r}
-#| label: fig-03
+#| label: fig-04
 #| fig-cap: "Line Plot of Total Death License by Year"
 #| fig-align: 'center'
 #| echo: false
+#| message: false
 #| warning: false
 library(dplyr)
 library(ggplot2)
@@ -202,7 +259,7 @@ ggplot(yearly_death_licenses, aes(x = year, y = total_death_licenses, color = pl
     title = "Line Plot of Total Death License by Year",
     x = "Year",
     y = "Total Number of Death Licenses",
-    caption = "Data source: Your Data Source.",
+    caption = "Data source: Opendatatoronto.",
     color = "Place of Death"
   ) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better visibility
@@ -211,13 +268,14 @@ ggplot(yearly_death_licenses, aes(x = year, y = total_death_licenses, color = pl
 
 ```
 # Results {#sec-results}
-## Protential  relation with Weather
-In recent years, with the sever climate change, there has been a higher death event that can be related to teh extreme weather. As noted by fig-6, Toronto doesn't seem to have received much of an impact. This bar chart shows the total number of death licenses by month from 2011 to 2024 (do not include 2024, 9-12), and the only peak observed is in January, while all other months are within the mean line except for March and May. The data provided by Toronto Public Health indicitate in during 2011-22 total extreme weather is 262 and 115 happened in January. Considering that Toronto's summer climate is more favorable compared to other countries in different regions, leading to a lower impact of extreme hot weather on deaths, but it is possible that severe cold weather may have led to more deaths and resulted in higher death license been issued  in January. By examining the national library of medicine in CMAJ Open. 2016 Jan-Mar; 4(1): E48 An article entitled “Assessment of the effect of cold and hot temperatures on mortality in Ontario, Canada: a population-based study” was published in CMAJ Open. 2016 Jan-Mar; 4(1): E48. A population-based study An article entitled “Assessment of the effect of cold and hot temperatures on mortality in Ontario, Canada: a population-based study” cited “Across Ontario, each 5°C change in daily temperature was estimated to induce 7 excess deaths per day in cold seasons and 4 excess deaths in warm seasons. and 4 excess deaths in warm seasons.” Concluded with the data this paper simulated, this suggests that there may be a positive correlation between cold weather and death license.
+## Death License with Month
+The peak in death licenses consistently occurs in January each year. In recent years, extreme weather has been linked to an increase in mortality and may have an impact on the number of death licenses. As illustrated in @fig-05, the bar chart displays the total number of death licenses by month from 2011 to 2024 (excluding September to December 2024), revealing that January is the only month with a notable peak. In contrast, the remaining months generally fall within the mean line. According to data from the City of Toronto, there were a total of 262 extreme weather events from 2011 to 2022, with 115 occurring in January【@toronto2022extreme】. Given that Toronto's summer climate is more favorable compared to other regions, it may have a lower impact from extreme heat on mortality in summer. However, severe cold weather in winter could contribute to an increase in deaths, leading to a higher number of death licenses issued in January. A population-based study published in CMAJ, titled "Assessment of the Effect of Cold and Hot Temperatures on Mortality in Ontario, Canada," reveals that each 5°C change in daily temperature is estimated to induce 7 excess deaths per day during cold seasons and 4 excess deaths during warm seasons【@chen2016assessment】. This suggests that extreme winter weather may be a contributing factor to the increase in mortality which may have a positive relation with death license.
 ```{r}
-#| label: fig-04
+#| label: fig-05
 #| fig-cap: "Total Death License by Month"
 #| fig-align: 'center'
 #| echo: false
+#| message: false
 #| warning: false
 library(dplyr)
 library(ggplot2)
@@ -244,7 +302,7 @@ ggplot(monthly_death_licenses, aes(x = month, y = total_death_licenses)) +
     title = "Total Death Licenses by Month (2011-2024)",
     x = "Month",
     y = "Total Number of Death Licenses",
-    caption = "Data source: Your Data Source."
+    caption = "Data source: Opendatatoronto."
   ) +
   scale_x_discrete(limits = month.abb) +  # Ensure months are in order
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better visibility
@@ -252,20 +310,15 @@ ggplot(monthly_death_licenses, aes(x = month, y = total_death_licenses)) +
 ```
 
 
-## Covid and Death License
-Fig-05 shows the dataset presented below the dot plot, in order to more visually observe the change in the number of death licenses during covid-19, this article narrows the dataset down to the period between 2017-2024 and in presents each month's data separately. From fig-05, there was not much change during the epidemic (2019-2022), the whole graph only shows extreme values in 3 months, , one of which occurred in 08-2020 but then fell back do not show a consistent trend, so in this paper it will be more proper to be treated as an outlier and is not statistically significant, and the overall distribution is more fitted with uniform distribution. In conclusipn the data proves that global wide public health is not correlated with the number of death license in Toronto and its outside city limits.
-
+## Death License with Covid
+@fig-06 presents the dataset displayed beneath the dot plot, which has been narrowed down to the period from 2017 to 2024 to facilitate a visual observation of changes in the number of death licenses during the COVID-19 pandemic. The data for each month is presented separately. There was not a significant change in death licenses during the pandemic years (2019-2022), with the graph revealing extreme values in only three months. Notably, one of these peaks occurred in August 2020, but this spike did not indicate a consistent trend and subsequently fell back, suggesting it should be treated as an outlier and not considered statistically significant. Overall, the distribution of death licenses appears to align more closely with a uniform distribution.
 
 ```{r}
-#| label: fig-05
+#| label: fig-06
 #| fig-cap: "Monthly Death License Dot Plot"
 #| echo: false
-
-# Read the CSV file
-data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
-# Load necessary libraries
-library(tidyverse)
-library(lubridate)
+#| message: false
+#| warning: false
 
 # Read the CSV file
 data <- read_csv(here::here("~/Paper 1/starter_folder-main/data/analysis_data/analysis_data.csv"))
@@ -280,39 +333,32 @@ plot_data <- data %>%
   # Create a new date column for easier plotting
   mutate(date = make_date(year, month, 1)) %>%
   # Filter to restrict time from 2015 to 2024
-  filter(year >= 2017 & year <= 2024)
+  filter(year >= 2016 & year <= 2023)
 
 # Create a dot plot with clearer x-axis
 ggplot(plot_data, aes(x = date, y = death_licenses, color = place_of_death)) +
   geom_point(size = 3) + # Use points for the dot plot
-  scale_x_date(date_labels = "%b %Y", date_breaks = "3 months") + # Show every 3 months
+  scale_x_date(date_labels = "%b %Y", date_breaks = "5 months") + # Show every 4 months
   labs(
-    title = "Monthly Death Licenses in Toronto and Outside City Limits (2015-2024)",
+    title = "Monthly Death Licenses in Toronto and Outside City \n Limits (2015-2024)",
     x = "Year-Month",
     y = "Number of Death Licenses",
-    color = "Place of Death"
+    color = "Place of Death",
+    caption = "Data source: Opendatatoronto."
   ) +
   theme_minimal() + # Clean theme
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate x-axis text for readability
 
 
 ```
-# Discussion {#sec-results}
+# Discussion {#sec-discussion}
 
-This paper analyzes the number of death licenses registered by civic centers from 2011 to September 2024. By visualizing death licenses by year and month, and using time series for forecasting, it is concluded that there is a positive correlation between the increase in extreme weather events in Toronto and the number of death licenses. Despite the negative impact of Covid-19 on Canada's economy, society, and healthcare, but the distrbution of death license in each year could not reveal a noticiable outcome as it more likly follow uniform disributionm   the dataset study was unable to conclude that there was any positive or negative correlation.
+This paper analyzes the number of death licenses registered by civic centers from 2011 to September 2024. By visualizing death licenses by year and month and employing time series forecasting, the study concludes that the peak in death licenses occurs in January, a month often associated with severe weather conditions, which may contribute to an increase in the number of death licenses issued.Despite the negative impacts of COVID-19 on Canada’s economy, society, and healthcare, the distribution of death licenses each year does not reveal a noticeable trend, suggesting that it likely follows a uniform distribution. Consequently, the dataset does not support a conclusive positive or negative correlation with the pandemic.
 
-Since this dataset only includes numbers, civic centers, and localities, it is not possible to determine the cause of death, and since death licenses are not mandatory for death and the concept is not equivalent to the total number of deaths in the Toronto area, this data does not provide an analysis of the total number of deaths and the causes of deaths in Toronto area, but it is useful for the government to know how many deaths have occurred in the Toronto area and do apply for death license for furthur applicatipn. However, for government departments, the death license statistics are useful for the registration and improvement of government health policies. As of the completion of this article, the data for the period September-December 2024 is not yet available, and is therefore missing, but the main data for the analysis avoids this specific time period, and is fully described and projected in the article, so it does not bias the analysis too much.
+The dataset consists only of numerical counts, civic centers, and localities, making it impossible to determine the causes of death. Moreover, since death licenses are not mandatory for all deaths and do not equate to the total number of deaths in the Toronto area, this data cannot provide a comprehensive analysis of total deaths or their causes. However, it is useful for government officials to understand how many deaths have occurred in the Toronto area and to facilitate the application for death licenses for administrative purposes.For government departments, death license statistics are valuable for registration and the improvement of health policies. As of the completion of this article, data for the period from September to December 2024 is not yet available. However, the main data analyzed avoids this specific time frame, and the projections made in the article are sufficiently described, minimizing potential biases in the analysis.
 
+# LLMs
 
-# References {#sec-results}
+Statement on LLM usage:LLMs were used in the making of this paper.
 
-Chen, Hong, et al. “Assessment of the Effect of Cold and Hot Temperatures on Mortality in Ontario, Canada: A Population-Based Study.” CMAJ Open, U.S. National Library of Medicine, 2 Feb. 2016, www.ncbi.nlm.nih.gov/pmc/articles/PMC4866918/. 
-
-City Clerk’s Office. “Open Data Dataset.” City of Toronto Open Data Portal, open.toronto.ca/dataset/death-registry-statistics/. Accessed 25 Sept. 2024. 
-
-City of Toronto. (2022, December 21). Statistics on extreme cold weather alerts in Toronto. https://www.toronto.ca/city-government/data-research-maps/research-reports/housing-and-homelessness-research-and-reports/statistics-on-extreme-cold-weather-alerts-in-toronto/ 
-
-Alexander, Rohan. “Telling Stories with Data.” Telling Stories with Data, 27 July 2023, tellingstorieswithdata.com/. 
-
-Service Ontario. “Get or Replace an Ontario Death Certificate.” Ontario.Ca, 24 Jan. 2012, 
-https://www.ontario.ca/page/get-or-replace-an-ontario-death-certificate#:~:text=A%20death%20certificate%20is%20a,Image.
+# References 
