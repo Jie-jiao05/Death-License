@@ -19,8 +19,5 @@ The repo is structured as:
 
 Statement on LLM usage:  LLMs were used in the making of this paper.
 
-## Some checks
-
 - [ ] Change the rproj file name so that it's not starter_folder.Rproj
-- [ ] Change the README title so that it's not Starter folder
-- [ ] Remove files that you're not using
+- [ ] Change the README title so that it's not Starter folder （but r studio do not allow me to change it, so I just have to keep it)
